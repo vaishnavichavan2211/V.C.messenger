@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -51,10 +53,6 @@ public class MainActivity extends AppCompatActivity {
         cumbut = findViewById(R.id.camBut);
         setbut = findViewById(R.id.settingBut);
 
-
-
-        DatabaseReference reference = database.getReference().child("user");
-
         usersArrayList = new ArrayList<>();
 
         mainUserRecyclerView = findViewById(R.id.mainUserRecyclerView);
@@ -62,67 +60,46 @@ public class MainActivity extends AppCompatActivity {
         adapter = new UserAdpter(MainActivity.this,usersArrayList);
         mainUserRecyclerView.setAdapter(adapter);
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String uid = auth.getCurrentUser().getUid();
 
-        reference.addValueEventListener(new ValueEventListener() {
-            @SuppressLint("NotifyDataSetChanged")
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot dataSnapshot: snapshot.getChildren())
-                {
-                    Users users = dataSnapshot.getValue(Users.class);
-                    usersArrayList.add(users);
-                }
-                adapter.notifyDataSetChanged();
+
+        // document which are not uid
+        db.collection("users").whereNotEqualTo("userId",uid).addSnapshotListener((value, error) -> {
+            usersArrayList.clear();
+            for (DocumentSnapshot snapshot : value.getDocuments()){
+                Users users = snapshot.toObject(Users.class);
+                usersArrayList.add(users);
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            adapter.notifyDataSetChanged();
         });
+
 
         imglogout =findViewById(R.id.logoutimg);
-        imglogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Dialog dialog=new Dialog(MainActivity.this,R.style.dialoge);
-                dialog.setContentView(R.layout.dialog_layout);
-                Button no,yes;
-                yes=dialog.findViewById(R.id.yesbnt);
-                no=dialog.findViewById(R.id.nobnt);
-                yes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        FirebaseAuth.getInstance().signOut();
-                        Intent intent=new Intent(MainActivity.this,login.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-                no.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-                dialog.show();
-            }
-        });
-
-        setbut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, setting.class);
+        imglogout.setOnClickListener(v -> {
+            Dialog dialog=new Dialog(MainActivity.this,R.style.dialoge);
+            dialog.setContentView(R.layout.dialog_layout);
+            Button no,yes;
+            yes=dialog.findViewById(R.id.yesbnt);
+            no=dialog.findViewById(R.id.nobnt);
+            yes.setOnClickListener(v2 -> {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent=new Intent(MainActivity.this,login.class);
                 startActivity(intent);
-            }
+                finish();
+            });
+            no.setOnClickListener(v1 -> dialog.dismiss());
+            dialog.show();
         });
 
-        cumbut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                startActivityForResult(intent,10);
-            }
+        setbut.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, setting.class);
+            startActivity(intent);
+        });
+
+        cumbut.setOnClickListener(v -> {
+            Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(intent,10);
         });
     }
 }
