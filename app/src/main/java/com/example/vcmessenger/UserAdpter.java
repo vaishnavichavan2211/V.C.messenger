@@ -20,9 +20,7 @@ public class UserAdpter extends RecyclerView.Adapter<UserAdpter.viewholder> {
     Context mainActivity;
     ArrayList<Users> usersArrayList;
     public UserAdpter(MainActivity mainActivity, ArrayList<Users> usersArrayList) {
-
         this.mainActivity=mainActivity;
-
         this.usersArrayList=usersArrayList;
     }
 
@@ -41,20 +39,16 @@ public class UserAdpter extends RecyclerView.Adapter<UserAdpter.viewholder> {
         Users users = usersArrayList.get(position);
         holder.username.setText(users.userName);
         holder.userstatus.setText(users.status);
-        Picasso.get().load(users.profilepic).into(holder.userimg);
+//        Picasso.get().load(users.profilepic).into(holder.userimg);
 
 
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(mainActivity,chatWin.class);
-                intent.putExtra("nameee",users.getUserName());
-                intent.putExtra("receverImg",users.getProfilepic());
-                intent.putExtra("Uid",users.getUserId());
-                mainActivity.startActivity(intent);
-
-            }
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent=new Intent(mainActivity,chatWin.class);
+            intent.putExtra("nameee",users.getUserName());
+            intent.putExtra("receverImg",users.getProfilepic());
+            intent.putExtra("Uid",users.getUserId());
+            mainActivity.startActivity(intent);
         });
     }
 
