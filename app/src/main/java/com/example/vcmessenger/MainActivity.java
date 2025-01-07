@@ -124,14 +124,5 @@ public class MainActivity extends AppCompatActivity {
                 startActivityForResult(intent,10);
             }
         });
-
-
-
-        if (auth.getCurrentUser() == null){
-            Intent intent= new Intent(MainActivity.this,login.class);
-            startActivity(intent);
-        }
-
-        // 1 2 3 4 5
     }
 }
