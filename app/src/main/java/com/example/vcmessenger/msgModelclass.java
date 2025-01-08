@@ -1,16 +1,19 @@
 package com.example.vcmessenger;
 
+import java.util.Date;
+
 public class msgModelclass {
     String message;
-    String senderid;
-    long timeStamp;
+    String senderUid;
+    String reciverUid;
+    Date timeStamp;
 
     public msgModelclass() {
     }
 
-    public msgModelclass(String message, String senderid, long timeStamp) {
+    public msgModelclass(String message, String senderUid, Date timeStamp) {
         this.message = message;
-        this.senderid = senderid;
+        this.senderUid = senderUid;
         this.timeStamp = timeStamp;
     }
 
@@ -22,19 +25,23 @@ public class msgModelclass {
         this.message = message;
     }
 
-    public String getSenderid() {
-        return senderid;
+    public String getSenderUid() {
+        return senderUid;
     }
 
-    public void setSenderid(String senderid) {
-        this.senderid = senderid;
+    public void setSenderUid(String senderUid) {
+        this.senderUid = senderUid;
     }
 
-    public long getTimeStamp() {
+    public Date getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(long timeStamp) {
+    public void setTimeStamp(Date timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public String getReciverUid() {
+        return reciverUid;
     }
 }
