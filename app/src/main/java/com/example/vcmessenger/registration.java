@@ -25,6 +25,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -108,54 +110,26 @@ public class registration extends AppCompatActivity {
                     if (task.isSuccessful()){
                         String id = task.getResult().getUser().getUid();
 
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        auth = FirebaseAuth.getInstance();
+                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(namee)
+                                .build();
+                        FirebaseUser user = auth.getCurrentUser();
 
-                        Users users = new Users(id,namee,emaill,Password,imageuri,status);
+                        user.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                        db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
-                            progressDialog.show();
-                            Intent intent = new Intent(registration.this,MainActivity.class);
-                            startActivity(intent);
-                            finish();
+                                Users users = new Users(id,namee,emaill,Password,imageuri,status);
+
+                                db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
+                                    progressDialog.show();
+                                    Intent intent = new Intent(registration.this,MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                });
+                            }
                         });
-
-//                        DatabaseReference reference = database.getReference().child("user").child(id);
-//                        StorageReference storageReference = storage.getReference().child("Upload").child(id);//                           storage part
-
-//                        if (imageURI!=null){
-//                            storageReference.putFile(imageURI).addOnCompleteListener(task1 -> {
-//                                if (task1.isSuccessful()){
-//                                    storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
-//                                        imageuri = uri.toString();
-//                                        Users users = new Users(id,namee,emaill,Password,imageuri,status);
-//                                        reference.setValue(users).addOnCompleteListener(task2 -> {
-//                                            if (task2.isSuccessful()){
-//                                                progressDialog.show();
-//                                                Intent intent = new Intent(registration.this,MainActivity.class);
-//                                                startActivity(intent);
-//                                                finish();
-//                                            }else {
-//                                                Toast.makeText(registration.this, "Error in creating the user", Toast.LENGTH_SHORT).show();//                  storage part
-//                                            }
-//                                        });
-//                                    });
-//                                }
-//                            });
-//                        }else {
-//                            String status1 = "Hey I'm Using This Application";
-//                            imageuri = "https://firebasestorage.googleapis.com/v0/b/av-messenger-dc8f3.appspot.com/o/man.png?alt=media&token=880f431d-9344-45e7-afe4-c2cafe8a5257";
-//                            Users users = new Users(id,namee,emaill,Password,imageuri, status1);
-//                            reference.setValue(users).addOnCompleteListener(task3 -> {
-//                                if (task3.isSuccessful()){
-//                                    progressDialog.show();
-//                                    Intent intent = new Intent(registration.this,MainActivity.class);
-//                                    startActivity(intent);
-//                                    finish();
-//                                }else {
-//                                    Toast.makeText(registration.this, "Error in creating the user", Toast.LENGTH_SHORT).show();
-//                                }
-//                            });
-//                        }
                     }else {
                         Toast.makeText(registration.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
