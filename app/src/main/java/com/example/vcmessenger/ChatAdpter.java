@@ -10,16 +10,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
-
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class UserAdpter extends RecyclerView.Adapter<UserAdpter.viewholder> {
+public class ChatAdpter extends RecyclerView.Adapter<ChatAdpter.viewholder> {
     Context mainActivity;
-    ArrayList<Users> usersArrayList;
-    public UserAdpter(MainActivity mainActivity, ArrayList<Users> usersArrayList) {
+    ArrayList<ChatRoom> usersArrayList;
+    public ChatAdpter(MainActivity mainActivity, ArrayList<ChatRoom> usersArrayList) {
         this.mainActivity=mainActivity;
         this.usersArrayList=usersArrayList;
     }
@@ -27,27 +25,26 @@ public class UserAdpter extends RecyclerView.Adapter<UserAdpter.viewholder> {
 
     @NonNull
     @Override
-    public UserAdpter.viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatAdpter.viewholder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mainActivity).inflate(R.layout.user_item,parent,false);
         return new viewholder(view);
     }
 
 
     @Override
-    public void onBindViewHolder(@NonNull UserAdpter.viewholder holder, int position) {
+    public void onBindViewHolder(@NonNull ChatAdpter.viewholder holder, int position) {
 
-        Users users = usersArrayList.get(position);
-        holder.username.setText(users.userName);
-        holder.userstatus.setText(users.status);
-//        Picasso.get().load(users.profilepic).into(holder.userimg);
+        ChatRoom chat = usersArrayList.get(position);
+        holder.username.setText(chat.getTitle());
+        holder.userstatus.setText("");
+//        Picasso.get().load(chat.profilepic).into(holder.userimg);
 
 
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent=new Intent(mainActivity,chatWin.class);
-            intent.putExtra("nameee",users.getUserName());
-            intent.putExtra("receverImg",users.getProfilepic());
-            intent.putExtra("Uid",users.getUserId());
+            intent.putExtra("nameeee",chat.getTitle());
+            intent.putExtra("RoomId",chat.getChatRoomId());
             mainActivity.startActivity(intent);
         });
     }

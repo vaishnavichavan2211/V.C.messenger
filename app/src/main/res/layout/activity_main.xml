@@ -12,16 +12,16 @@
         android:layout_width="wrap_content"
         android:layout_height="65dp"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_marginStart="30dp"
+        android:layout_marginLeft="23dp"
         android:layout_marginTop="@dimen/_12sdp"
         android:layout_marginEnd="25dp"
+        android:layout_marginRight="25dp"
         android:background="@color/white"
-        android:gravity="right"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="23dp"
-        android:layout_marginRight="25dp">
+        android:gravity="right">
 
 
         <TextView
@@ -104,6 +104,15 @@
         android:src="@drawable/sett"
         tools:ignore="ContentDescription,RtlHardcoded" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addNewChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/mainUserRecyclerView"
+        android:layout_alignBottom="@+id/mainUserRecyclerView"
+        android:src="@drawable/rounded_add_24"
+        android:layout_margin="@dimen/_10sdp"
+        android:contentDescription="create Chat" />
 </RelativeLayout>
 
 
