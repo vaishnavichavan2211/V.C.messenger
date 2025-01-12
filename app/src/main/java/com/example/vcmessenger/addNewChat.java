@@ -36,7 +36,7 @@ public class addNewChat extends AppCompatActivity {
 
         db.collection("users").whereNotEqualTo("userId", my).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                Log.d("TAG", "onCreate: " + task.getResult().getDocuments().size());
+                Log.d("1", "onCreate: " + task.getResult().getDocuments().size());
                 ArrayList<Users> usersArrayList = new ArrayList<>();
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
                 for (DocumentSnapshot document : documents) {
@@ -44,31 +44,36 @@ public class addNewChat extends AppCompatActivity {
                     if (chats == null) {
                         Users users = document.toObject(Users.class);
                         usersArrayList.add(users);
-                        Log.d("TAG", "onCreate: " + users.getUserName());
+                        Log.d("2", "onCreate: " + users.getUserName());
                         continue;
                     }
-                    Log.d("TAG", "onCreate: " + chats);
+                    Log.d("3", "onCreate: " + chats);
                     ArrayList<HashMap<String, Object>> chatList = (ArrayList<HashMap<String, Object>>) chats;
+                    boolean flag = false;
                     for (HashMap<String, Object> chat : chatList) {
                         if (chat.get("members") instanceof ArrayList) {
                             ArrayList<HashMap<String, Object>> members = (ArrayList<HashMap<String, Object>>) chat.get("members");
                             for (HashMap<String, Object> member : members) {
                                 if (member.get("id").equals(my)) {
-                                    return;
+                                    flag = true;
                                 }
                             }
                         }
                     }
-                    Users users = document.toObject(Users.class);
-                    usersArrayList.add(users);
+
+                    if (!flag){
+                        Users users = document.toObject(Users.class);
+                        usersArrayList.add(users);
+                    }
                 }
 
-
+                Log.d("5", "onCreate: " + usersArrayList.size());
                 runOnUiThread(() -> {
+                    Log.d("5", "onCreate: " + usersArrayList.size());
                     UsersList.removeAllViews();
                     for (Users users : usersArrayList) {
                         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.user_item, null);
-                        Log.d("TAG", "onCreate: " + users.getUserName());
+                        Log.d("4", "onCreate: " + users.getUserName());
                         view.setOnClickListener(v -> {
                             HashMap<String, Object> chat = new HashMap<>();
                             String chatId = db.collection("chats").document().getId();

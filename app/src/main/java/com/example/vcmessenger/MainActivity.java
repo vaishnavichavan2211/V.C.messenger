@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -55,29 +56,30 @@ public class MainActivity extends AppCompatActivity {
         mainUserRecyclerView.setAdapter(adapter);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String uid = auth.getCurrentUser().getUid();
+        String myUid = auth.getCurrentUser().getUid();
 
-        db.collection("users").whereNotEqualTo("userId", uid).addSnapshotListener((value, error) -> {
+        db.collection("users").whereNotEqualTo("userId", myUid).addSnapshotListener((value, error) -> {
             if (error != null) {
                 return;
             }
+            ChatArrayList.clear();
             for (DocumentSnapshot document : value.getDocuments()) {
                 Object chats = document.get("chats");
                 if (chats == null) {
-                    return;
+                    continue;
                 }
                 ArrayList<HashMap<String, Object>> chatList = (ArrayList<HashMap<String, Object>>) chats;
                 for (HashMap<String, Object> chat : chatList) {
                     ArrayList<HashMap<String,Object>> members = (ArrayList<HashMap<String,Object>>) chat.get("members");
-                    ChatArrayList.clear();
                     for (HashMap<String,Object> member : members) {
-                        if (member.get("id").equals(uid)) {
+                        if (member.get("id").equals(myUid)) {
                             ChatRoom chatRoom = new ChatRoom();
                             chatRoom.setChatRoomId((String) chat.get("chatRoomId"));
                             chatRoom.members = new ArrayList<>();
                             for (HashMap<String,Object> user : (ArrayList<HashMap<String,Object>>) chat.get("members")) {
-                                if (!user.get("id").equals(uid)) {
+                                if (!user.get("id").equals(myUid)) {
                                     chatRoom.setTitle((String) user.get("userName"));
+                                    chatRoom.setChatRoomImageUrl((String) document.get("profilepic"));
                                 }
                                 chatRoom.members.add((String) user.get("id"));
                             }
@@ -116,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(intent, 10);
         });
-
 
         newChat.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, addNewChat.class);

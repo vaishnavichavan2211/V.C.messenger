@@ -6,33 +6,24 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -43,14 +34,9 @@ public class registration extends AppCompatActivity {
     CircleImageView rg_profileImg;
     FirebaseAuth auth;
     Uri imageURI;
-    String imageuri;
     String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
     FirebaseDatabase database;
-    FirebaseStorage storage;
     ProgressDialog progressDialog;
-
-
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -67,7 +53,6 @@ public class registration extends AppCompatActivity {
         progressDialog.setMessage("Establishing The Account");
         progressDialog.setCancelable(false);
         database = FirebaseDatabase.getInstance();
-        storage = FirebaseStorage.getInstance();
         auth = FirebaseAuth.getInstance();
         loginbut = findViewById(R.id.loginbut);
         rg_username = findViewById(R.id.rgusername);
@@ -118,16 +103,61 @@ public class registration extends AppCompatActivity {
 
                         user.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
-                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                if (imageURI == null) {
+                                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                    Users users = new Users(id,namee,emaill,Password,imageuri,status);
 
-                                Users users = new Users(id,namee,emaill,Password,imageuri,status);
+                                    db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
+                                        progressDialog.show();
+                                        Intent intent = new Intent(registration.this,MainActivity.class);
+                                        startActivity(intent);
+                                        finish();
+                                    });
+                                }else{
+                                    StorageHelper.uploadImage(getApplicationContext(),StorageHelper.PROFILE,imageURI, id, new StorageHelper.ImageUploadListener() {
+                                        @Override
+                                        public void onUploadSuccess(String imageUrl) {
+                                            runOnUiThread(() -> {
+                                                FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                                db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
-                                    progressDialog.show();
-                                    Intent intent = new Intent(registration.this,MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                });
+                                                Users users = new Users(id,namee,emaill,Password,imageUrl,status);
+
+                                                UserProfileChangeRequest profileUpdates1 = new UserProfileChangeRequest.Builder()
+                                                        .setPhotoUri(Uri.parse(imageUrl))
+                                                        .build();
+
+                                                user.updateProfile(profileUpdates1).addOnCompleteListener(task2 -> {
+                                                    if (task2.isSuccessful()) {
+                                                        db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
+                                                            progressDialog.show();
+                                                            Intent intent = new Intent(registration.this,MainActivity.class);
+                                                            startActivity(intent);
+                                                            finish();
+                                                        });
+                                                    }
+                                                });
+                                            });
+                                            Log.e("TAG", "onUploadSuccess: " + imageUrl);
+                                        }
+
+                                        @Override
+                                        public void onUploadError(String message) {
+                                            runOnUiThread(() -> {
+                                                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                                                Users users = new Users(id,namee,emaill,Password,imageuri,status);
+
+                                                db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
+                                                    progressDialog.show();
+                                                    Intent intent = new Intent(registration.this,MainActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                });
+                                            });
+                                            Log.e("TAG", "onUploadError: " + message);
+                                        }
+                                    });
+                                }
+
                             }
                         });
                     }else {
@@ -150,10 +180,12 @@ public class registration extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode==10){
-            if (data!=null){
-                imageURI = data.getData();
-                rg_profileImg.setImageURI(imageURI);
+        if (requestCode == 10) {
+            if (data != null) {
+                imageURI = ImageUtils.getPickImageResultUri(data, this);
+                if (imageURI!=null){
+                    rg_profileImg.setImageURI(imageURI);
+                }
             }
         }
     }

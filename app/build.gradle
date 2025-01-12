@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.vcmessenger"
-        minSdk 21
+        minSdk 28
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -36,9 +36,6 @@ dependencies {
     implementation libs.activity
     implementation libs.constraintlayout
     implementation libs.firebase.database
-
-
-    implementation libs.firebase.storage
     implementation libs.firebase.auth
     implementation libs.support.annotations
     implementation libs.firebase.firestore
@@ -48,5 +45,5 @@ dependencies {
     androidTestImplementation libs.espresso.core
     implementation libs.sdp.android
     implementation libs.circleimageview
-    implementation libs.picasso
+    implementation(libs.dropbox.core.sdk)
 }

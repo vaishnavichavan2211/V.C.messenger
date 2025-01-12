@@ -6,6 +6,7 @@ public class ChatRoom {
     String chatRoomId;
     ArrayList<String> members;
     String title;
+    String chatRoomImageUrl;
 
     public ChatRoom() {
     }
@@ -37,5 +38,13 @@ public class ChatRoom {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getChatRoomImageUrl() {
+        return chatRoomImageUrl;
+    }
+
+    public void setChatRoomImageUrl(String chatRoomImageUrl) {
+        this.chatRoomImageUrl = chatRoomImageUrl;
     }
 }

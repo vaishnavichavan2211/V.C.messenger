@@ -6,6 +6,7 @@ import static com.example.vcmessenger.chatWin.senderImg;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -48,35 +48,29 @@ public class messagesAdpter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         msgModelclass messages = messagesAdpterArrayList.get(position);
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                new AlertDialog.Builder(context).setTitle("Delete")
-                        .setMessage("Are you sure you want to delete this message?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+        holder.itemView.setOnLongClickListener(view -> {
+            new AlertDialog.Builder(context).setTitle("Delete")
+                    .setMessage("Are you sure you want to delete this message?")
+                    .setPositiveButton("Yes", (dialogInterface, i) -> {
 
-                            }
-                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        }).show();
+                    }).setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss()).show();
 
-                return false;
-            }
+            return false;
         });
         if (holder.getClass()==senderVierwHolder.class){
             senderVierwHolder viewHolder = (senderVierwHolder) holder;
             viewHolder.msgtxt.setText(messages.getMessage());
-            Picasso.get().load(senderImg).into(viewHolder.circleImageView);
+            if (senderImg!=null) {
+                Uri uri = Uri.parse(senderImg);
+                viewHolder.circleImageView.setImageURI(uri);
+            }
+
         }else { reciverViewHolder viewHolder = (reciverViewHolder) holder;
             viewHolder.msgtxt.setText(messages.getMessage());
-            Picasso.get().load(reciverIImg).into(viewHolder.circleImageView);
-
-
+            if (reciverIImg!=null){
+                Uri uri = Uri.parse(reciverIImg);
+                viewHolder.circleImageView.setImageURI(uri);
+            }
         }
     }
 
