@@ -1,6 +1,5 @@
 package com.example.vcmessenger;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -33,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView cumbut, setbut;
 
-    @SuppressLint({"MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
                 if (chats == null) {
                     return;
                 }
+                ChatArrayList.clear();
                 ArrayList<HashMap<String, Object>> chatList = (ArrayList<HashMap<String, Object>>) chats;
                 for (HashMap<String, Object> chat : chatList) {
                     ArrayList<HashMap<String,Object>> members = (ArrayList<HashMap<String,Object>>) chat.get("members");
-                    ChatArrayList.clear();
                     for (HashMap<String,Object> member : members) {
                         if (member.get("id").equals(uid)) {
                             ChatRoom chatRoom = new ChatRoom();
