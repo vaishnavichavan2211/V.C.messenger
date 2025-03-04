@@ -16,10 +16,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatAdpter extends RecyclerView.Adapter<ChatAdpter.viewholder> {
     Context mainActivity;
-    ArrayList<ChatRoom> usersArrayList;
-    public ChatAdpter(MainActivity mainActivity, ArrayList<ChatRoom> usersArrayList) {
+    ArrayList<ChatRoom> ChatArrayList;
+    public ChatAdpter(MainActivity mainActivity, ArrayList<ChatRoom> ChatArrayList) {
         this.mainActivity=mainActivity;
-        this.usersArrayList=usersArrayList;
+        this.ChatArrayList = ChatArrayList;
     }
 
 
@@ -34,7 +34,7 @@ public class ChatAdpter extends RecyclerView.Adapter<ChatAdpter.viewholder> {
     @Override
     public void onBindViewHolder(@NonNull ChatAdpter.viewholder holder, int position) {
 
-        ChatRoom chat = usersArrayList.get(position);
+        ChatRoom chat = ChatArrayList.get(position);
         holder.username.setText(chat.getTitle());
         holder.userstatus.setText("");
 //        Picasso.get().load(chat.profilepic).into(holder.userimg);
@@ -51,7 +51,7 @@ public class ChatAdpter extends RecyclerView.Adapter<ChatAdpter.viewholder> {
 
     @Override
     public int getItemCount() {
-        return usersArrayList.size();
+        return ChatArrayList.size();
     }
 
     public class viewholder extends RecyclerView.ViewHolder {

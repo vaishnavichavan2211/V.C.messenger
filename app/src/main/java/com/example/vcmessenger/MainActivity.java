@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -23,7 +22,6 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseAuth auth;
-    FirebaseDatabase database;
     RecyclerView mainUserRecyclerView;
     ChatAdpter adapter;
     ArrayList<ChatRoom> ChatArrayList;
@@ -37,9 +35,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-
-
-        database = FirebaseDatabase.getInstance();
         auth = FirebaseAuth.getInstance();
         cumbut = findViewById(R.id.camBut);
         setbut = findViewById(R.id.settingBut);
@@ -59,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
             if (error != null) {
                 return;
             }
+            ChatArrayList.clear();
             for (DocumentSnapshot document : value.getDocuments()) {
                 Object chats = document.get("chats");
                 if (chats == null) {
-                    return;
+                    continue;
                 }
-                ChatArrayList.clear();
                 ArrayList<HashMap<String, Object>> chatList = (ArrayList<HashMap<String, Object>>) chats;
                 for (HashMap<String, Object> chat : chatList) {
                     ArrayList<HashMap<String,Object>> members = (ArrayList<HashMap<String,Object>>) chat.get("members");

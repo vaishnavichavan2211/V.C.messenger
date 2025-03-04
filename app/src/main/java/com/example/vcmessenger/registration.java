@@ -118,9 +118,10 @@ public class registration extends AppCompatActivity {
 
                         user.updateProfile(profileUpdates).addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()) {
+                                Users users = new Users(id,namee,emaill,Password,imageuri,status);
+
                                 FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-                                Users users = new Users(id,namee,emaill,Password,imageuri,status);
 
                                 db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
                                     progressDialog.show();

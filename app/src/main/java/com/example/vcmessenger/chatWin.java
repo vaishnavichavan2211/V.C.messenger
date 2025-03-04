@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -108,28 +109,6 @@ public class chatWin extends AppCompatActivity {
                         Log.e("Firestore", "Error fetching messages: ", task.getException());
                     }
                 });
-
-//        db.collection("chats").whereEqualTo("senderUid", reciverUid).whereEqualTo("reciverUid", SenderUID).orderBy("timestamp").addSnapshotListener((value, error) -> {
-//            if (error != null) {
-//                Toast.makeText(chatWin.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-//                Log.e("error", error.getMessage());
-//                return;
-//            }
-//            if (value != null) {
-//                if (value.isEmpty()) {
-//                    Toast.makeText(chatWin.this, "No Messages", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//                messagesArrayList.clear();
-//                for (DocumentSnapshot snapshot : value.getDocuments()) {
-//                    msgModelclass msg = snapshot.toObject(msgModelclass.class);
-//                    messagesArrayList.add(msg);
-//                }
-//                mmessagesAdpter.notifyDataSetChanged();
-//            }
-//        });
-
-
 
         sendbtn.setOnClickListener(view -> {
             String message = textmsg.getText().toString();

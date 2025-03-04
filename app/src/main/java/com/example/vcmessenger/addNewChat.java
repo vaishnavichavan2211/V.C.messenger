@@ -37,28 +37,39 @@ public class addNewChat extends AppCompatActivity {
         db.collection("users").whereNotEqualTo("userId", my).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Log.d("TAG", "onCreate: " + task.getResult().getDocuments().size());
+
                 ArrayList<Users> usersArrayList = new ArrayList<>();
                 List<DocumentSnapshot> documents = task.getResult().getDocuments();
+
                 for (DocumentSnapshot document : documents) {
+
                     Object chats = document.get("chats");
                     if (chats == null) {
+
                         Users users = document.toObject(Users.class);
                         usersArrayList.add(users);
-                        Log.d("TAG", "onCreate: " + users.getUserName());
+
                         continue;
                     }
+
                     Log.d("TAG", "onCreate: " + chats);
                     ArrayList<HashMap<String, Object>> chatList = (ArrayList<HashMap<String, Object>>) chats;
                     for (HashMap<String, Object> chat : chatList) {
+
                         if (chat.get("members") instanceof ArrayList) {
+
                             ArrayList<HashMap<String, Object>> members = (ArrayList<HashMap<String, Object>>) chat.get("members");
                             for (HashMap<String, Object> member : members) {
+
                                 if (member.get("id").equals(my)) {
                                     return;
                                 }
+
                             }
+
                         }
                     }
+
                     Users users = document.toObject(Users.class);
                     usersArrayList.add(users);
                 }
@@ -68,24 +79,25 @@ public class addNewChat extends AppCompatActivity {
                     UsersList.removeAllViews();
                     for (Users users : usersArrayList) {
                         View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.user_item, null);
-                        Log.d("TAG", "onCreate: " + users.getUserName());
+
                         view.setOnClickListener(v -> {
                             HashMap<String, Object> chat = new HashMap<>();
                             String chatId = db.collection("chats").document().getId();
                             chat.put("chatRoomId", chatId);
                             ArrayList<HashMap<String, Object>> members = getMembers(users, my);
                             chat.put("members", members);
+
                             // add chat metadata in user
                             db.collection("users").document(my).update("chats", FieldValue.arrayUnion(chat)).addOnCompleteListener(task1 -> {
                                 if (task1.isSuccessful()) {
                                     db.collection("users").document(users.getUserId()).update("chats", FieldValue.arrayUnion(chat)).addOnCompleteListener(task3 -> {
-                                        db.collection("chatRooms").document(chatId).collection("messages").document().set(new HashMap<String, Object>() {
-                                            {
-                                                put("message", "Hello");
-                                                put("senderUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-                                                put("timeStamp", FieldValue.serverTimestamp());
-                                            }
-                                        }).addOnCompleteListener(task2 -> {
+                                        HashMap<String,Object> newMessage = new HashMap<>();
+
+                                        newMessage.put("message", "Hello");
+                                        newMessage.put("senderUid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                        newMessage.put("timeStamp", FieldValue.serverTimestamp());
+
+                                        db.collection("chatRooms").document(chatId).collection("messages").document().set(newMessage).addOnCompleteListener(task2 -> {
                                             if (task2.isSuccessful()) {
                                                 finish();
                                             }
@@ -94,8 +106,13 @@ public class addNewChat extends AppCompatActivity {
                                 }
                             });
                         });
-                        ((TextView)view.findViewById(R.id.username)).setText(users.getUserName());
-                        ((TextView)view.findViewById(R.id.userstatus)).setText(users.getStatus());
+
+                        TextView name = view.findViewById(R.id.username);
+                        TextView status = view.findViewById(R.id.userstatus);
+
+                        name.setText(users.getUserName());
+                        status.setText(users.getStatus());
+
                         UsersList.addView(view);
                     }
                 });
