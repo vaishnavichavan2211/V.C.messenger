@@ -46,26 +46,6 @@ public class setting extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Saing...");
         progressDialog.setCancelable(false);
-
-        DatabaseReference reference = database.getReference().child("user").child(auth.getUid());
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                email = snapshot.child("mail").getValue().toString();
-                password = snapshot.child("password").getValue().toString();
-                String name = snapshot.child("userName").getValue().toString();
-                String profile = snapshot.child("profilepic").getValue().toString();
-                String status = snapshot.child("status").getValue().toString();
-                setname.setText(name);
-                setstatus.setText(status);
-                setprofile.setImageURI(Uri.parse(profile));
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
         setprofile.setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.setType("image/*");

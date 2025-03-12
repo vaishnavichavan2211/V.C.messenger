@@ -5,7 +5,6 @@ import static com.example.vcmessenger.chatWin.senderImg;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,13 +63,14 @@ public class messagesAdpter extends RecyclerView.Adapter {
                 Uri uri = Uri.parse(senderImg);
                 viewHolder.circleImageView.setImageURI(uri);
             }
-
-        }else { reciverViewHolder viewHolder = (reciverViewHolder) holder;
+        }else {
+            reciverViewHolder viewHolder = (reciverViewHolder) holder;
             viewHolder.msgtxt.setText(messages.getMessage());
             if (reciverIImg!=null){
                 Uri uri = Uri.parse(reciverIImg);
                 viewHolder.circleImageView.setImageURI(uri);
             }
+            viewHolder.userName.setText(messages.getUserName());
         }
     }
 
@@ -102,10 +102,12 @@ public class messagesAdpter extends RecyclerView.Adapter {
     class reciverViewHolder extends RecyclerView.ViewHolder {
         CircleImageView circleImageView;
         TextView msgtxt;
+        TextView userName;
         public reciverViewHolder(@NonNull View itemView) {
             super(itemView);
             circleImageView = itemView.findViewById(R.id.pro);
             msgtxt = itemView.findViewById(R.id.recivertextset);
+            userName = itemView.findViewById(R.id.senderName);
         }
     }
 }

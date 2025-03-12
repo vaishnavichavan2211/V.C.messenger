@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         String myUid = auth.getCurrentUser().getUid();
 
-        db.collection("users").whereNotEqualTo("userId", myUid).addSnapshotListener((value, error) -> {
+        db.collection("users").whereEqualTo("userId",myUid).addSnapshotListener((value, error) -> {
             if (error != null) {
                 return;
             }
@@ -76,10 +76,16 @@ public class MainActivity extends AppCompatActivity {
                             ChatRoom chatRoom = new ChatRoom();
                             chatRoom.setChatRoomId((String) chat.get("chatRoomId"));
                             chatRoom.members = new ArrayList<>();
+                            boolean isGroup = false;
+                            if (members.size() > 2){
+                                isGroup = true;
+                                chatRoom.setTitle(chat.get("title").toString());
+                                chatRoom.setChatRoomImageUrl("");
+                            }
                             for (HashMap<String,Object> user : (ArrayList<HashMap<String,Object>>) chat.get("members")) {
-                                if (!user.get("id").equals(myUid)) {
+                                if (!user.get("id").equals(myUid) && !isGroup){
                                     chatRoom.setTitle((String) user.get("userName"));
-                                    chatRoom.setChatRoomImageUrl((String) document.get("profilepic"));
+                                    chatRoom.setChatRoomImageUrl((String) user.get("profilepic"));
                                 }
                                 chatRoom.members.add((String) user.get("id"));
                             }
@@ -120,8 +126,24 @@ public class MainActivity extends AppCompatActivity {
         });
 
         newChat.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, addNewChat.class);
-            startActivity(intent);
+            Dialog dialog = new Dialog(MainActivity.this, R.style.CustomDialog);
+            dialog.setContentView(R.layout.group_or_single);
+            Button group, single, cancel;
+            group = dialog.findViewById(R.id.group);
+            single = dialog.findViewById(R.id.single);
+            cancel = dialog.findViewById(R.id.cancel);
+            group.setOnClickListener(v1 -> {
+                Intent intent = new Intent(MainActivity.this, AddNewGroupChat.class);
+                startActivity(intent);
+                dialog.dismiss();
+            });
+            single.setOnClickListener(v1 -> {
+                Intent intent = new Intent(MainActivity.this, addNewChat.class);
+                startActivity(intent);
+                dialog.dismiss();
+            });
+            cancel.setOnClickListener(v1 -> dialog.dismiss());
+            dialog.show();
         });
     }
 }

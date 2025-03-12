@@ -7,14 +7,16 @@ public class msgModelclass {
     String senderUid;
     String reciverUid;
     Date timeStamp;
+    String userName;
 
     public msgModelclass() {
     }
 
-    public msgModelclass(String message, String senderUid, Date timeStamp) {
+    public msgModelclass(String message, String senderUid, Date timeStamp, String userName) {
         this.message = message;
         this.senderUid = senderUid;
         this.timeStamp = timeStamp;
+        this.userName = userName;
     }
 
     public String getMessage() {
@@ -43,5 +45,13 @@ public class msgModelclass {
 
     public String getReciverUid() {
         return reciverUid;
+    }
+
+    public void setReciverUid(String reciverUid) {
+        this.reciverUid = reciverUid;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }

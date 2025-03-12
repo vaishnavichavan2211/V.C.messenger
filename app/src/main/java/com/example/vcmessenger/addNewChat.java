@@ -1,5 +1,6 @@
 package com.example.vcmessenger;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +27,6 @@ public class addNewChat extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_new_chat);
 
         UsersList = findViewById(R.id.UsersList);
@@ -53,6 +53,9 @@ public class addNewChat extends AppCompatActivity {
                     for (HashMap<String, Object> chat : chatList) {
                         if (chat.get("members") instanceof ArrayList) {
                             ArrayList<HashMap<String, Object>> members = (ArrayList<HashMap<String, Object>>) chat.get("members");
+                            if (members.size() >2){
+                                continue;
+                            }
                             for (HashMap<String, Object> member : members) {
                                 if (member.get("id").equals(my)) {
                                     flag = true;
@@ -72,15 +75,18 @@ public class addNewChat extends AppCompatActivity {
                     Log.d("5", "onCreate: " + usersArrayList.size());
                     UsersList.removeAllViews();
                     for (Users users : usersArrayList) {
-                        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.user_item, null);
+                        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.user_item, UsersList, false);
                         Log.d("4", "onCreate: " + users.getUserName());
+                        ((TextView)view.findViewById(R.id.username)).setText(users.getUserName());
+                        ((TextView)view.findViewById(R.id.userstatus)).setText(users.getStatus());
+
                         view.setOnClickListener(v -> {
                             HashMap<String, Object> chat = new HashMap<>();
                             String chatId = db.collection("chats").document().getId();
                             chat.put("chatRoomId", chatId);
                             ArrayList<HashMap<String, Object>> members = getMembers(users, my);
                             chat.put("members", members);
-                            // add chat metadata in user
+
                             db.collection("users").document(my).update("chats", FieldValue.arrayUnion(chat)).addOnCompleteListener(task1 -> {
                                 if (task1.isSuccessful()) {
                                     db.collection("users").document(users.getUserId()).update("chats", FieldValue.arrayUnion(chat)).addOnCompleteListener(task3 -> {
@@ -99,8 +105,6 @@ public class addNewChat extends AppCompatActivity {
                                 }
                             });
                         });
-                        ((TextView)view.findViewById(R.id.username)).setText(users.getUserName());
-                        ((TextView)view.findViewById(R.id.userstatus)).setText(users.getStatus());
                         UsersList.addView(view);
                     }
                 });
@@ -113,9 +117,16 @@ public class addNewChat extends AppCompatActivity {
         HashMap<String, Object> member1 = new HashMap<>();
         member1.put("id", users.getUserId());
         member1.put("userName", users.getUserName());
+        member1.put("profilepic", users.getProfilepic());
         HashMap<String, Object> member2 = new HashMap<>();
         member2.put("id", my);
         member2.put("userName", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        Uri profileUri = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
+        if (profileUri != null) {
+            member2.put("profilepic", profileUri.toString());
+        }else {
+            member2.put("profilepic", "");
+        }
         ArrayList<HashMap<String, Object>> members = new ArrayList<>();
         members.add(member1);
         members.add(member2);
