@@ -49,6 +49,8 @@ public class registration extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Establishing The Account");
         progressDialog.setCancelable(false);
@@ -108,7 +110,6 @@ public class registration extends AppCompatActivity {
                                     Users users = new Users(id,namee,emaill,Password,imageuri,status);
 
                                     db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
-                                        progressDialog.show();
                                         Intent intent = new Intent(registration.this,MainActivity.class);
                                         startActivity(intent);
                                         finish();
@@ -129,7 +130,6 @@ public class registration extends AppCompatActivity {
                                                 user.updateProfile(profileUpdates1).addOnCompleteListener(task2 -> {
                                                     if (task2.isSuccessful()) {
                                                         db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
-                                                            progressDialog.show();
                                                             Intent intent = new Intent(registration.this,MainActivity.class);
                                                             startActivity(intent);
                                                             finish();
@@ -147,7 +147,6 @@ public class registration extends AppCompatActivity {
                                                 Users users = new Users(id,namee,emaill,Password,imageuri,status);
 
                                                 db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
-                                                    progressDialog.show();
                                                     Intent intent = new Intent(registration.this,MainActivity.class);
                                                     startActivity(intent);
                                                     finish();

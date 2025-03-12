@@ -167,7 +167,8 @@ public class chatWin extends AppCompatActivity {
             msg.put("message", message);
             msg.put("senderUid", SenderUID);
             msg.put("timeStamp", FieldValue.serverTimestamp());
-            msgModelclass msgModelclass = new msgModelclass(message, SenderUID, null);
+            msg.put("userName", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            msgModelclass msgModelclass = new msgModelclass(message, SenderUID, null, "");
             messagesArrayList.add(msgModelclass);
             mmessagesAdpter.notifyDataSetChanged();
             scrollToBottom();

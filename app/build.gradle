@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'com.example.vcmessenger'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.example.vcmessenger"
-        minSdk 28
+        minSdk 27
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -40,6 +40,9 @@ dependencies {
     implementation libs.support.annotations
     implementation libs.firebase.firestore
     implementation libs.runner
+    implementation libs.credentials
+    implementation libs.credentials.play.services.auth
+    implementation libs.googleid
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
