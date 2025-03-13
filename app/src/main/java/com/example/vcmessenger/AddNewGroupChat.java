@@ -57,8 +57,7 @@ public class AddNewGroupChat extends AppCompatActivity{
                     Log.d("5", "onCreate: " + usersArrayList.size());
                     UsersList.removeAllViews();
                     for (Users users : usersArrayList) {
-                        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.user_item, UsersList, false);
-
+                        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.user_item, null);
                         Log.d("4", "onCreate: " + users.getUserName());
                         // hold listner
                         view.setOnClickListener(v -> {
