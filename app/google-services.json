@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "83756030610",
-    "project_id": "v-c-messenger-e7822",
-    "storage_bucket": "v-c-messenger-e7822.firebasestorage.app"
+    "project_number": "1064476545927",
+    "firebase_url": "https://vcmesenger-35da3-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "vcmesenger-35da3",
+    "storage_bucket": "vcmesenger-35da3.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:83756030610:android:864bf931cafceb9ba5e44b",
+        "mobilesdk_app_id": "1:1064476545927:android:4f59433511cac65f8b7922",
         "android_client_info": {
           "package_name": "com.example.vcmessenger"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA_OnMsctrbfJ0gBY0Qj0eA9_m_uvTFCYM"
+          "current_key": "AIzaSyBes4_0XdYscOlA_VoNF7LTQP_jN10yFuo"
         }
       ],
       "services": {

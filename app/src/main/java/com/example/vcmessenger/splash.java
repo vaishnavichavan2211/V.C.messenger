@@ -11,18 +11,14 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class splash extends AppCompatActivity {
 
     ImageView logo;
     TextView name,own1,own2;
     Animation topAnim,bottomAnim;
-
-
-
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -44,13 +40,17 @@ public class splash extends AppCompatActivity {
         own1.setAnimation(bottomAnim);
         own2.setAnimation(bottomAnim);
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent intent=new Intent(splash.this,MainActivity.class);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        new Handler().postDelayed(() -> {
+            if (auth.getCurrentUser() == null){
+                Intent intent= new Intent(getApplicationContext(),login.class);
                 startActivity(intent);
-                finish();
+            }else{
+                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                startActivity(intent);
             }
-        },4000);
+            finish();
+        },2000);
     }
 }

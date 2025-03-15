@@ -170,7 +170,7 @@
         android:id="@+id/signupbutton"
         android:layout_width="@dimen/_250sdp"
         android:layout_height="@dimen/_45sdp"
-        android:backgroundTint="@color/black"
+        android:backgroundTint="#0f1049"
         android:text="SIGN UP"
         android:textSize="@dimen/_22sdp"
         android:textStyle="bold"

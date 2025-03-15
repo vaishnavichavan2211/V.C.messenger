@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomDialog" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="android:windowMinWidthMajor">90%</item> <!-- Controls width -->
+        <item name="android:windowMinWidthMinor">90%</item> <!-- Controls width -->
+        <item name="android:backgroundDimEnabled">true</item> <!-- Dim background -->
+        <item name="android:windowBackground">@android:color/transparent</item> <!-- Remove default padding -->
+    </style>
+</resources>

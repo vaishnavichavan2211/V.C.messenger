@@ -1,60 +1,58 @@
 package com.example.vcmessenger;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class chatWin extends AppCompatActivity {
-    String reciverimg, reciverUid,reciverName,SenderUID;
+    String reciverimg, RoomId, reciverName, SenderUID, reciverId;
     CircleImageView profile;
     TextView reciverNName;
-    FirebaseDatabase database;
     FirebaseAuth firebaseAuth;
-    public  static String senderImg;
-    public  static String reciverIImg;
+    public static String senderImg;
+    public static String reciverIImg;
     CardView sendbtn;
     EditText textmsg;
-
-    String senderRoom,reciverRoom;
     RecyclerView messageAdpter;
     ArrayList<msgModelclass> messagesArrayList;
     messagesAdpter mmessagesAdpter;
+    Timestamp lastTimestamp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_win);
-
-        database = FirebaseDatabase.getInstance();
         firebaseAuth = FirebaseAuth.getInstance();
 
         reciverName = getIntent().getStringExtra("nameeee");
-        reciverimg = getIntent().getStringExtra("reciverImg");
-        reciverUid = getIntent().getStringExtra("uid");
-
+        RoomId = getIntent().getStringExtra("RoomId");
+        reciverimg = getIntent().getStringExtra("image");
+        reciverId = getIntent().getStringExtra("reciverId");
         messagesArrayList = new ArrayList<>();
 
         sendbtn = findViewById(R.id.sendbtnn);
@@ -65,85 +63,158 @@ public class chatWin extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         messageAdpter.setLayoutManager(linearLayoutManager);
-        mmessagesAdpter = new messagesAdpter(chatWin.this,messagesArrayList);
+        mmessagesAdpter = new messagesAdpter(chatWin.this, messagesArrayList);
         messageAdpter.setAdapter(mmessagesAdpter);
 
+        reciverNName.setText("" + reciverName);
 
-        Picasso.get().load(reciverimg).into(profile);
-        reciverNName.setText(""+reciverName);
+        lastTimestamp = Timestamp.now();
 
-        SenderUID =  firebaseAuth.getUid();
+        SenderUID = firebaseAuth.getUid();
 
-        senderRoom = SenderUID+reciverUid;
-        reciverRoom = reciverUid+SenderUID;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        db.collection("chatRooms")
+                .document(RoomId)
+                .collection("messages")
+                .orderBy("timeStamp", Query.Direction.DESCENDING)
+                .limit(20)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        if (task.getResult().isEmpty()) {
+                            Toast.makeText(chatWin.this, "No Messages", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
+                        messagesArrayList.clear();
 
-        DatabaseReference  reference = database.getReference().child("user").child(firebaseAuth.getUid());
-        DatabaseReference  chatreference = database.getReference().child("chats").child(senderRoom).child("messages");
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        for (int i = documents.size() - 1; i >= 0; i--) {
+                            DocumentSnapshot snapshot = documents.get(i);
+                            msgModelclass msg = snapshot.toObject(msgModelclass.class);
+                            if (i == 0) {
+                                lastTimestamp = snapshot.getTimestamp("timeStamp");
+                            }
+                            if (msg != null) {
+                                messagesArrayList.add(msg);
+                            }
+                        }
 
+                        // Update UI
+                        mmessagesAdpter.notifyDataSetChanged();
+                        scrollToBottom();
 
-        chatreference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                messagesArrayList.clear();
-                for (DataSnapshot dataSnapshot:snapshot.getChildren()){
-                    msgModelclass messages = dataSnapshot.getValue(msgModelclass.class);
-                    messagesArrayList.add(messages);
+                        listenForNewMessages(db);
+                    } else {
+                        Log.e("Firestore", "Error fetching messages: ", task.getException());
+                    }
+                });
+
+        new Thread(() -> {
+            if (reciverimg != null) {
+                if (!reciverimg.isEmpty()) {
+                    File localFile = new File(getApplicationContext().getFilesDir(), reciverId + ".jpg");
+                    StorageHelper.downloadFile(reciverimg, localFile, new StorageHelper.TaskListener() {
+                        @Override
+                        public void onSuccess(Object object) {
+                            File file = (File) object;
+                            Uri uri = Uri.fromFile(file);
+                            new Handler(Looper.getMainLooper()).post(() -> profile.setImageURI(uri));
+                            reciverIImg = uri.toString();
+                        }
+
+                        @Override
+                        public void onError(String message) {
+                            Log.d("TAG", "onError: " + message);
+                        }
+                    });
                 }
-                mmessagesAdpter.notifyDataSetChanged();
             }
+            Uri profileUri = FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl();
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                senderImg= snapshot.child("profilepic").getValue().toString();
-                reciverIImg=reciverimg;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        sendbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String message = textmsg.getText().toString();
-                if (message.isEmpty()){
-                    Toast.makeText(chatWin.this, "Enter The Message First", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                textmsg.setText("");
-                Date date = new Date();
-                msgModelclass messagess = new msgModelclass(message,SenderUID,date.getTime());
-
-                database=FirebaseDatabase.getInstance();
-                database.getReference().child("chats")
-                        .child(senderRoom)
-                        .child("messages")
-                        .push().setValue(messagess).addOnCompleteListener(new OnCompleteListener<Void>() {
+            if(profileUri != null){
+                String myProfilePicture = profileUri.toString();
+                if(myProfilePicture != null){
+                    if(!myProfilePicture.isEmpty()){
+                        File localFile = new File(getApplicationContext().getFilesDir(), SenderUID + ".jpg");
+                        StorageHelper.downloadFile(myProfilePicture, localFile, new StorageHelper.TaskListener() {
                             @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                database.getReference().child("chats")
-                                        .child(reciverRoom)
-                                        .child("messages")
-                                        .push().setValue(messagess).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
+                            public void onSuccess(Object object) {
+                                File file = (File) object;
+                                Uri uri = Uri.fromFile(file);
+                                new Handler(Looper.getMainLooper()).post(() -> senderImg = uri.toString());
+                            }
 
-                                            }
-                                        });
+                            @Override
+                            public void onError(String message) {
+                                Log.d("TAG", "onError: " + message);
                             }
                         });
+                    }
+                }
             }
-        });
+        }).start();
 
+        sendbtn.setOnClickListener(view -> {
+            String message = textmsg.getText().toString();
+            if (message.isEmpty()) {
+                Toast.makeText(chatWin.this, "Enter The Message First", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            textmsg.setText("");
+            HashMap<String, Object> msg = new HashMap<>();
+            msg.put("message", message);
+            msg.put("senderUid", SenderUID);
+            msg.put("timeStamp", FieldValue.serverTimestamp());
+            msg.put("userName", FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            msgModelclass msgModelclass = new msgModelclass(message, SenderUID, null, "");
+            messagesArrayList.add(msgModelclass);
+            mmessagesAdpter.notifyDataSetChanged();
+            scrollToBottom();
+
+            db.collection("chatRooms").document(RoomId).collection("messages").add(msg).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(chatWin.this, "Message Sent", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(chatWin.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private void listenForNewMessages(FirebaseFirestore db) {
+        final boolean[] isFirstLoad = {true};
+        db.collection("chatRooms")
+                .document(RoomId)
+                .collection("messages")
+                .orderBy("timeStamp", Query.Direction.DESCENDING)
+                .limit(1)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(chatWin.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e("Firestore", "Snapshot listener error: ", error);
+                        return;
+                    }
+
+                    if (value != null && !value.isEmpty()) {
+                        if (isFirstLoad[0]) {
+                            isFirstLoad[0] = false;
+                            return;
+                        }
+
+                        DocumentSnapshot snapshot = value.getDocuments().get(0);
+                        msgModelclass msg = snapshot.toObject(msgModelclass.class);
+                        if (msg != null && !Objects.equals(msg.senderUid, SenderUID)) {
+                            messagesArrayList.add(msg);
+                            mmessagesAdpter.notifyDataSetChanged();
+                            scrollToBottom();
+                        }
+                    }
+                });
+    }
+
+    private void scrollToBottom() {
+        messageAdpter.scrollToPosition(messagesArrayList.size() - 1);
     }
 }
