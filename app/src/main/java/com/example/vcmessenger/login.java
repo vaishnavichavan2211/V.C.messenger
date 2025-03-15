@@ -65,19 +65,20 @@ public class login extends AppCompatActivity {
             String pass = password.getText().toString();
 
             if ((TextUtils.isEmpty(Email))) {
-                progressDialog.dismiss();
+
                 Toast.makeText(login.this, "Enter The Email", Toast.LENGTH_SHORT).show();
             } else if ((TextUtils.isEmpty(pass))) {
-                progressDialog.dismiss();
+
                 Toast.makeText(login.this, "Enter The Password", Toast.LENGTH_SHORT).show();
             } else if (!Email.matches(emailPatttern)) {
-                progressDialog.dismiss();
+
                 email.setError("Give proper Email Address");
             } else if (password.length() < 6) {
-                progressDialog.dismiss();
+
                 password.setError("More Tha Six Characters");
                 Toast.makeText(login.this, "password need to be longer then six characters", Toast.LENGTH_SHORT).show();
             } else {
+                progressDialog.show();
 
                 auth.signInWithEmailAndPassword(Email, pass).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

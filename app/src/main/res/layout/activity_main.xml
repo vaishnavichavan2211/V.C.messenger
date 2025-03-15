@@ -25,7 +25,7 @@
             android:layout_width="41dp"
             android:layout_height="@dimen/_32sdp"
             android:layout_marginEnd="@dimen/_10sdp"
-            android:src="@drawable/image_chat6"
+            android:src="@drawable/logo"
             android:transitionName="logout_img"
             tools:ignore="ContentDescription" />
 

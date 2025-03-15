@@ -81,18 +81,19 @@ public class registration extends AppCompatActivity {
 
             if (TextUtils.isEmpty(namee) || TextUtils.isEmpty(emaill) ||
                     TextUtils.isEmpty(Password) || TextUtils.isEmpty(cPassword)){
-                progressDialog.dismiss();
+
                 Toast.makeText(registration.this, "Please Enter Valid Information", Toast.LENGTH_SHORT).show();
             }else  if (!emaill.matches(emailPattern)){
-                progressDialog.dismiss();
+
                 rg_email.setError("Type A Valid Email Here");
             }else if (Password.length()<6){
-                progressDialog.dismiss();
+
                 rg_password.setError("Password Must Be 6 Characters Or More");
             }else if (!Password.equals(cPassword)){
-                progressDialog.dismiss();
+
                 rg_password.setError("The Password Doesn't Match");
             }else {
+                progressDialog.show();
                 auth.createUserWithEmailAndPassword(emaill,Password).addOnCompleteListener(task -> {
                     if (task.isSuccessful()){
                         String id = task.getResult().getUser().getUid();
@@ -110,6 +111,7 @@ public class registration extends AppCompatActivity {
                                     Users users = new Users(id,namee,emaill,Password,imageuri,status);
 
                                     db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
+                                        progressDialog.show();
                                         Intent intent = new Intent(registration.this,MainActivity.class);
                                         startActivity(intent);
                                         finish();
@@ -132,6 +134,7 @@ public class registration extends AppCompatActivity {
                                                         db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
                                                             Intent intent = new Intent(registration.this,MainActivity.class);
                                                             startActivity(intent);
+                                                            progressDialog.dismiss();
                                                             finish();
                                                         });
                                                     }
@@ -147,6 +150,7 @@ public class registration extends AppCompatActivity {
                                                 Users users = new Users(id,namee,emaill,Password,imageuri,status);
 
                                                 db.collection("users").document(id).set(users).addOnSuccessListener(aVoid -> {
+                                                    progressDialog.show();
                                                     Intent intent = new Intent(registration.this,MainActivity.class);
                                                     startActivity(intent);
                                                     finish();
